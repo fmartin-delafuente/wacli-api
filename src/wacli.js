@@ -34,13 +34,17 @@ function execWacli(args, timeoutMs = 30000) {
 }
 
 /**
- * Execute pm2 commands to stop/start wacli-sync
+ * Execute pm2 commands to stop/restart wacli-sync
+ * Uses 'restart' instead of 'start' because pm2 start expects a script path,
+ * while restart works with an existing named process.
  */
 function pm2(action) {
+    // Map 'start' to 'restart' for named processes
+    const pm2Action = action === 'start' ? 'restart' : action;
     return new Promise((resolve, reject) => {
-        execFile('pm2', [action, 'wacli-sync'], { timeout: 10000 }, (err, stdout, stderr) => {
+        execFile('pm2', [pm2Action, 'wacli-sync'], { timeout: 10000 }, (err, stdout, stderr) => {
             if (err) {
-                console.error(`pm2 ${action} error:`, stderr);
+                console.error(`pm2 ${pm2Action} error:`, stderr);
                 // Don't reject — best effort
             }
             resolve();
